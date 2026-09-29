@@ -130,6 +130,7 @@ fun MishkatTutorScreen(
     var showDailyReminderDialog by remember { mutableStateOf(false) }
     var showBadgesDialog by remember { mutableStateOf(false) }
     var currentStudentName by remember { mutableStateOf<String?>(null) }
+    var lessonsInitialFilter by remember { mutableStateOf<String?>(null) }
 
     // التمرير التلقائي لآخر رسالة عند وصول رد جديد
     LaunchedEffect(state.messages.size) {
@@ -173,7 +174,12 @@ fun MishkatTutorScreen(
                         inputText = inputText,
                         onInputTextChange = { inputText = it },
                         showLessonsSplitPane = showLessonsSplitPane,
-                        onToggleSplitPane = { showLessonsSplitPane = !showLessonsSplitPane },
+                        onToggleSplitPane = { 
+                            showLessonsSplitPane = !showLessonsSplitPane
+                            if (!showLessonsSplitPane) {
+                                lessonsInitialFilter = null
+                            }
+                        },
                         displayModeSetting = displayModeSetting,
                         effectiveLayoutType = effectiveLayoutType,
                         onOpenDisplayModeDialog = { showDisplayModeDialog = true },
@@ -182,13 +188,17 @@ fun MishkatTutorScreen(
                             if (onOpenAuth != null) onOpenAuth() else showAuthDialog = true
                         },
                         onOpenLessons = {
-                            // على الحاسوب، النقر على الدروس يفتح أو يغلق العرض المزدوج بسلاسة
                             showLessonsSplitPane = !showLessonsSplitPane
+                            if (!showLessonsSplitPane) {
+                                lessonsInitialFilter = null
+                            }
                         },
                         onOpenVoiceRecitation = { showVoiceRecitationDialog = true },
                         onOpenDailyReminder = { showDailyReminderDialog = true },
                         onOpenBadges = { showBadgesDialog = true },
                         isEn = isEn,
+                        lessonsInitialFilter = lessonsInitialFilter,
+                        onLessonsInitialFilterChange = { lessonsInitialFilter = it },
                         onSelectLessonForTutor = { lessonTitle, topic ->
                             val prompt = if (isEn) {
                                 "Please provide a comprehensive academic explanation of the lesson: «$lessonTitle» on the topic «$topic», citing canonical sources from Ar-Rawdat An-Nadir and highlighting permissible vs. prohibited facets."
@@ -211,7 +221,12 @@ fun MishkatTutorScreen(
                         inputText = inputText,
                         onInputTextChange = { inputText = it },
                         showLessonsSplitPane = showLessonsSplitPane,
-                        onToggleSplitPane = { showLessonsSplitPane = !showLessonsSplitPane },
+                        onToggleSplitPane = { 
+                            showLessonsSplitPane = !showLessonsSplitPane
+                            if (!showLessonsSplitPane) {
+                                lessonsInitialFilter = null
+                            }
+                        },
                         displayModeSetting = displayModeSetting,
                         effectiveLayoutType = effectiveLayoutType,
                         onOpenDisplayModeDialog = { showDisplayModeDialog = true },
@@ -221,11 +236,16 @@ fun MishkatTutorScreen(
                         },
                         onOpenLessons = {
                             showLessonsSplitPane = !showLessonsSplitPane
+                            if (!showLessonsSplitPane) {
+                                lessonsInitialFilter = null
+                            }
                         },
                         onOpenVoiceRecitation = { showVoiceRecitationDialog = true },
                         onOpenDailyReminder = { showDailyReminderDialog = true },
                         onOpenBadges = { showBadgesDialog = true },
                         isEn = isEn,
+                        lessonsInitialFilter = lessonsInitialFilter,
+                        onLessonsInitialFilterChange = { lessonsInitialFilter = it },
                         onSelectLessonForTutor = { lessonTitle, topic ->
                             val prompt = if (isEn) {
                                 "Please provide a comprehensive academic explanation of the lesson: «$lessonTitle» on the topic «$topic», citing canonical sources from Ar-Rawdat An-Nadir and highlighting permissible vs. prohibited facets."
@@ -254,11 +274,18 @@ fun MishkatTutorScreen(
                         onOpenAuth = {
                             if (onOpenAuth != null) onOpenAuth() else showAuthDialog = true
                         },
-                        onOpenLessons = { showLessonsDialog = true },
+                        onOpenLessons = { 
+                            lessonsInitialFilter = null
+                            showLessonsDialog = true 
+                        },
                         onOpenVoiceRecitation = { showVoiceRecitationDialog = true },
                         onOpenDailyReminder = { showDailyReminderDialog = true },
                         onOpenBadges = { showBadgesDialog = true },
-                        isEn = isEn
+                        isEn = isEn,
+                        onBrowsePathwayLessons = { unitTitle ->
+                            lessonsInitialFilter = unitTitle
+                            showLessonsDialog = true
+                        }
                     )
                 }
             }
@@ -312,13 +339,21 @@ fun MishkatTutorScreen(
         // نافذة عرض قائمة وفهرس دروس تحريرات عاصم (عند فتحها منفصلة)
         if (showLessonsDialog) {
             Dialog(
-                onDismissRequest = { showLessonsDialog = false },
+                onDismissRequest = { 
+                    showLessonsDialog = false
+                    lessonsInitialFilter = null
+                },
                 properties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
                 LessonsListScreen(
-                    onNavigateBack = { showLessonsDialog = false },
+                    initialUnitFilter = lessonsInitialFilter,
+                    onNavigateBack = { 
+                        showLessonsDialog = false
+                        lessonsInitialFilter = null
+                    },
                     onSelectLessonForTutor = { lessonTitle, topic ->
                         showLessonsDialog = false
+                        lessonsInitialFilter = null
                         val prompt = if (isEn) {
                             "Please provide a comprehensive academic explanation of the lesson: «$lessonTitle» on the topic «$topic», citing canonical sources from Ar-Rawdat An-Nadir and highlighting permissible vs. prohibited facets."
                         } else {
@@ -399,6 +434,8 @@ private fun DesktopLayoutContent(
     onOpenDailyReminder: () -> Unit,
     onOpenBadges: () -> Unit,
     isEn: Boolean,
+    lessonsInitialFilter: String? = null,
+    onLessonsInitialFilterChange: (String?) -> Unit,
     onSelectLessonForTutor: (lessonTitle: String, topic: String) -> Unit
 ) {
     val context = LocalContext.current
@@ -577,8 +614,12 @@ private fun DesktopLayoutContent(
                     Box(modifier = Modifier.weight(0.44f)) {
                         LessonsListScreen(
                             isEmbeddedInSplitPane = true,
-                            onCloseSplitPane = onToggleSplitPane,
-                            onSelectLessonForTutor = onSelectLessonForTutor
+                            onCloseSplitPane = {
+                                onLessonsInitialFilterChange(null)
+                                onToggleSplitPane()
+                            },
+                            onSelectLessonForTutor = onSelectLessonForTutor,
+                            initialUnitFilter = lessonsInitialFilter
                         )
                     }
 
@@ -606,7 +647,10 @@ private fun DesktopLayoutContent(
                             onOpenDisplayModeDialog = onOpenDisplayModeDialog,
                             onOpenLessons = onOpenLessons,
                             onOpenVoiceRecitation = onOpenVoiceRecitation,
-                            onOpenDailyReminder = onOpenDailyReminder
+                            onOpenDailyReminder = onOpenDailyReminder,
+                            onBrowsePathwayLessons = { unitTitle ->
+                                onLessonsInitialFilterChange(unitTitle)
+                            }
                         )
                     }
                 }
@@ -628,7 +672,13 @@ private fun DesktopLayoutContent(
                     onOpenDisplayModeDialog = onOpenDisplayModeDialog,
                     onOpenLessons = onOpenLessons,
                     onOpenVoiceRecitation = onOpenVoiceRecitation,
-                    onOpenDailyReminder = onOpenDailyReminder
+                    onOpenDailyReminder = onOpenDailyReminder,
+                    onBrowsePathwayLessons = { unitTitle ->
+                        onLessonsInitialFilterChange(unitTitle)
+                        if (!showLessonsSplitPane) {
+                            onToggleSplitPane()
+                        }
+                    }
                 )
             }
         }
@@ -658,6 +708,8 @@ private fun TabletLayoutContent(
     onOpenDailyReminder: () -> Unit,
     onOpenBadges: () -> Unit,
     isEn: Boolean,
+    lessonsInitialFilter: String? = null,
+    onLessonsInitialFilterChange: (String?) -> Unit,
     onSelectLessonForTutor: (lessonTitle: String, topic: String) -> Unit
 ) {
     val context = LocalContext.current
@@ -795,8 +847,12 @@ private fun TabletLayoutContent(
                     Box(modifier = Modifier.weight(0.45f)) {
                         LessonsListScreen(
                             isEmbeddedInSplitPane = true,
-                            onCloseSplitPane = onToggleSplitPane,
-                            onSelectLessonForTutor = onSelectLessonForTutor
+                            onCloseSplitPane = {
+                                onLessonsInitialFilterChange(null)
+                                onToggleSplitPane()
+                            },
+                            onSelectLessonForTutor = onSelectLessonForTutor,
+                            initialUnitFilter = lessonsInitialFilter
                         )
                     }
                     Box(
@@ -822,7 +878,10 @@ private fun TabletLayoutContent(
                             onOpenDisplayModeDialog = onOpenDisplayModeDialog,
                             onOpenLessons = onOpenLessons,
                             onOpenVoiceRecitation = onOpenVoiceRecitation,
-                            onOpenDailyReminder = onOpenDailyReminder
+                            onOpenDailyReminder = onOpenDailyReminder,
+                            onBrowsePathwayLessons = { unitTitle ->
+                                onLessonsInitialFilterChange(unitTitle)
+                            }
                         )
                     }
                 }
@@ -852,7 +911,13 @@ private fun TabletLayoutContent(
                             onOpenDisplayModeDialog = onOpenDisplayModeDialog,
                             onOpenLessons = onOpenLessons,
                             onOpenVoiceRecitation = onOpenVoiceRecitation,
-                            onOpenDailyReminder = onOpenDailyReminder
+                            onOpenDailyReminder = onOpenDailyReminder,
+                            onBrowsePathwayLessons = { unitTitle ->
+                                onLessonsInitialFilterChange(unitTitle)
+                                if (!showLessonsSplitPane) {
+                                    onToggleSplitPane()
+                                }
+                            }
                         )
                     }
                 }
@@ -881,7 +946,8 @@ private fun MobileLayoutContent(
     onOpenVoiceRecitation: () -> Unit,
     onOpenDailyReminder: () -> Unit,
     onOpenBadges: () -> Unit,
-    isEn: Boolean
+    isEn: Boolean,
+    onBrowsePathwayLessons: (String) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -1059,23 +1125,36 @@ private fun MobileLayoutContent(
                 isEn = isEn
             )
 
-            // تيار الرسائل (Chat Stream)
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp),
-                contentPadding = PaddingValues(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(state.messages, key = { it.id }) { message ->
-                    ChatMessageItem(message = message, isEn = isEn)
+            // تيار الرسائل أو المسارات التعليمية المعتمدة
+            if (state.messages.isEmpty() && !state.isLoading) {
+                Box(modifier = Modifier.weight(1f)) {
+                    MishkatPathwaysDashboard(
+                        isEn = isEn,
+                        onBrowsePathwayLessons = onBrowsePathwayLessons,
+                        onStartPathwayTutor = { prompt ->
+                            viewModel.sendMessage(prompt)
+                        }
+                    )
                 }
+            } else {
+                // تيار الرسائل (Chat Stream)
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(state.messages, key = { it.id }) { message ->
+                        ChatMessageItem(message = message, isEn = isEn)
+                    }
 
-                if (state.isLoading) {
-                    item {
-                        MishkatLoadingIndicator(isEn = isEn)
+                    if (state.isLoading) {
+                        item {
+                            MishkatLoadingIndicator(isEn = isEn)
+                        }
                     }
                 }
             }
@@ -1118,7 +1197,8 @@ private fun TutorChatWorkspace(
     onOpenDisplayModeDialog: () -> Unit,
     onOpenLessons: () -> Unit,
     onOpenVoiceRecitation: () -> Unit,
-    onOpenDailyReminder: () -> Unit
+    onOpenDailyReminder: () -> Unit,
+    onBrowsePathwayLessons: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -1277,23 +1357,36 @@ private fun TutorChatWorkspace(
                     isEn = isEn
                 )
 
-                // تيار الرسائل (Chat Stream)
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(horizontal = 14.dp),
-                    contentPadding = PaddingValues(vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(state.messages, key = { it.id }) { message ->
-                        ChatMessageItem(message = message, isEn = isEn)
+                // تيار الرسائل أو المسارات التعليمية المعتمدة
+                if (state.messages.isEmpty() && !state.isLoading) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        MishkatPathwaysDashboard(
+                            isEn = isEn,
+                            onBrowsePathwayLessons = onBrowsePathwayLessons,
+                            onStartPathwayTutor = { prompt ->
+                                viewModel.sendMessage(prompt)
+                            }
+                        )
                     }
+                } else {
+                    // تيار الرسائل (Chat Stream)
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp),
+                        contentPadding = PaddingValues(vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(state.messages, key = { it.id }) { message ->
+                            ChatMessageItem(message = message, isEn = isEn)
+                        }
 
-                    if (state.isLoading) {
-                        item {
-                            MishkatLoadingIndicator(isEn = isEn)
+                        if (state.isLoading) {
+                            item {
+                                MishkatLoadingIndicator(isEn = isEn)
+                            }
                         }
                     }
                 }

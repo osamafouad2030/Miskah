@@ -136,10 +136,11 @@ fun LessonsListScreen(
     onSelectLessonForTutor: ((lessonTitle: String, topic: String) -> Unit)? = null,
     isEmbeddedInSplitPane: Boolean = false,
     onCloseSplitPane: (() -> Unit)? = null,
-    notesViewModel: LessonNotesViewModel = viewModel()
+    notesViewModel: LessonNotesViewModel = viewModel(),
+    initialUnitFilter: String? = null
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedUnitFilter by remember { mutableStateOf<String?>(null) }
+    var selectedUnitFilter by remember { mutableStateOf<String?>(initialUnitFilter) }
     var selectedLessonForDetail by remember { mutableStateOf<BookKnowledgeChunk?>(null) }
     var selectedLessonForQuiz by remember { mutableStateOf<BookKnowledgeChunk?>(null) }
 
