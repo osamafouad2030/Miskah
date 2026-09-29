@@ -1,0 +1,102 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
+
+    <!-- Background Badge Circle -->
+    <path
+        android:fillColor="#0D3B36"
+        android:pathData="M64,64m-60,0a60,60 0,1 1,120 0a60,60 0,1 1,-120 0" />
+
+    <!-- Outer Decorative Ring -->
+    <path
+        android:strokeColor="#C5A859"
+        android:strokeWidth="2.5"
+        android:pathData="M64,64m-54,0a54,54 0,1 1,108 0a54,54 0,1 1,-108 0" />
+
+    <!-- Inner Subtle Accent Ring -->
+    <path
+        android:strokeColor="#3D7B74"
+        android:strokeWidth="1.2"
+        android:pathData="M64,64m-48,0a48,48 0,1 1,96 0a48,48 0,1 1,-96 0" />
+
+    <!-- Lantern (Mishkat) Chain -->
+    <path
+        android:strokeColor="#E6C875"
+        android:strokeWidth="2"
+        android:pathData="M64,16 L64,30" />
+
+    <!-- Lantern Cap / Finial -->
+    <path
+        android:fillColor="#C5A859"
+        android:pathData="M64,28 L68,34 L60,34 Z" />
+
+    <!-- Lantern Top Dome -->
+    <path
+        android:fillColor="#E6C875"
+        android:pathData="M54,34 Q64,31 74,34 L76,40 L52,40 Z" />
+
+    <!-- Lantern Glass Body (Golden Glow) -->
+    <path
+        android:fillColor="#FFED99"
+        android:pathData="M52,40 Q46,52 53,63 L75,63 Q82,52 76,40 Z" />
+
+    <!-- Lantern Internal Light Flame / Spark -->
+    <path
+        android:fillColor="#E69500"
+        android:pathData="M64,45 Q67,52 64,58 Q61,52 64,45 Z" />
+
+    <!-- Lantern Base -->
+    <path
+        android:fillColor="#C5A859"
+        android:pathData="M53,63 L75,63 L72,68 L56,68 Z" />
+
+    <path
+        android:fillColor="#E6C875"
+        android:pathData="M64,68 L66,72 L62,72 Z" />
+
+    <!-- Open Quran Holy Book (Pages) -->
+    <!-- Right Page -->
+    <path
+        android:fillColor="#FDFBF7"
+        android:strokeColor="#C5A859"
+        android:strokeWidth="1"
+        android:pathData="M64,78 Q78,74 94,76 L92,93 Q78,90 64,95 Z" />
+
+    <!-- Left Page -->
+    <path
+        android:fillColor="#FDFBF7"
+        android:strokeColor="#C5A859"
+        android:strokeWidth="1"
+        android:pathData="M64,78 Q50,74 34,76 L36,93 Q50,90 64,95 Z" />
+
+    <!-- Quran Text Lines (Right) -->
+    <path
+        android:strokeColor="#C5A859"
+        android:strokeWidth="1"
+        android:pathData="M70,81 L88,81 M70,85 L87,85 M70,89 L85,89" />
+
+    <!-- Quran Text Lines (Left) -->
+    <path
+        android:strokeColor="#C5A859"
+        android:strokeWidth="1"
+        android:pathData="M40,81 L58,81 M41,85 L58,85 M43,89 L58,89" />
+
+    <!-- Wooden Rehal / Bookstand Base -->
+    <path
+        android:fillColor="#8C5B28"
+        android:pathData="M48,93 L64,88 L80,93 L86,104 L78,107 L64,96 L50,107 L42,104 Z" />
+
+    <path
+        android:fillColor="#C5A859"
+        android:pathData="M64,93 L67,96 L61,96 Z" />
+
+    <!-- Light Rays Emanating from Mishkat -->
+    <path
+        android:strokeColor="#E6C875"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M42,44 L34,40 M86,44 L94,40 M40,54 L31,54 M88,54 L97,54 M45,66 L37,70 M83,66 L91,70" />
+
+</vector>
